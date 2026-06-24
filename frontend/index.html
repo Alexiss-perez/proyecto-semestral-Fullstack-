@@ -4,77 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediVita | Suplementos y Medicamentos</title>
-    <link rel="stylesheet" href="style.css"> 
+    <script>
+      tailwind.config = {
+        theme: { extend: { colors: { pastelPink: '#FCE7F3', pastelLavender: '#EDE9FE', pastelMint: '#DFFCF0', pastelYellow: '#FFF7CD' } } }
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-
-    <header class="main-header">
-        <div class="logo">
-            <h1>Medi<span>Vita</span></h1>
-        </div>
-        <nav class="nav-bar">
-            <ul>
-                <li><a href="#" class="active">Inicio</a></li>
-                <li><a href="#">Vitaminas</a></li>
-                <li><a href="#">Suplementos</a></li>
-                <li><a href="#">Probióticos</a></li>
-                <li><a href="#">Contacto</a></li>
-            </ul>
-        </nav>
-        <div class="header-actions">
-            <button class="btn-cart">🛒 Carrito</button>
-        </div>
-    </header>
-
-    <main>
-        <section class="hero-section">
-            <div class="hero-content">
-                <h2>Tu bienestar y salud, <br>en un solo lugar.</h2>
-                <p>Encuentra los suplementos de la más alta calidad para potenciar tu día a día de forma segura.</p>
-                <div class="hero-buttons">
-                    <a href="#" class="btn-primary">Ver Catálogo</a>
-                    <a href="#" class="btn-secondary">Saber Más</a>
-                </div>
-            </div>
-            <div class="hero-image">
-                <img src="https://via.placeholder.com/500x400" alt="Suplementos y bienestar">
-            </div>
-        </section>
-
-        <section class="categories-section">
-    <h3>Explora nuestras categorías</h3>
-    <div class="grid-categories">
-
-        <div class="category-card">
-            <span class="icon">💊</span>
-            <h4>Vitaminas</h4>
-            <p>Recetados y de venta libre con total confianza.</p>
-            <div id="contenedor-vitaminas" class="fila-productos-horizontal"></div>
-        </div>
-
-        <div class="category-card">
-            <span class="icon">🌿</span>
-            <h4>Suplementos</h4>
-            <p>Vitaminas y proteínas para rendir al máximo.</p>
-            <div id="contenedor-suplementos" class="fila-productos-horizontal"></div>
-        </div>
-
-        <div class="category-card">
-            <span class="icon">🍏</span>
-            <h4>Cuidado Diario</h4>
-            <p>Productos para mantener tu equilibrio y energía.</p>
-            <div id="contenedor-alimentacion" class="fila-productos-horizontal"></div>
-        </div>
-
+<body class="antialiased text-gray-800">
+  <!-- Hero -->
+  <header class="bg-gradient-to-br from-pastelPink via-pastelLavender to-pastelMint py-16">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900">Descubre productos encantadores</h1>
+      <p class="mt-4 text-gray-700 max-w-2xl mx-auto">Diseños únicos, colores suaves y envío rápido. Bienvenido a MediVita.</p>
+      <div class="mt-8 flex items-center justify-center gap-4">
+        <a href="#productos" class="inline-block bg-white text-indigo-600 px-6 py-3 rounded-lg shadow hover:shadow-lg transition">Explorar</a>
+        <a href="#contacto" class="inline-block bg-transparent border border-white/40 text-white px-5 py-3 rounded-lg">Contacto</a>
+      </div>
     </div>
-</section>
+  </header>
 
-    </main>
-    
-    <footer>
-        <p>&copy; 2026 MediVita. Todos los derechos reservados.</p>
-    </footer>
+  <main class="max-w-6xl mx-auto px-6 py-12">
+    <!-- Categories simplified -->
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-4">Explora nuestras categorías</h2>
+      <div class="flex gap-4 overflow-auto pb-2">
+        <a href="./catalogo.html?cat=vitaminas" class="flex-none bg-white rounded-2xl shadow px-5 py-4 w-44 text-center hover:scale-105 transform transition">
+          <div class="text-3xl">💊</div>
+          <p class="mt-2 font-medium">Vitaminas</p>
+        </a>
+        <a href="#" class="flex-none bg-white rounded-2xl shadow px-5 py-4 w-44 text-center hover:scale-105 transform transition">
+          <div class="text-3xl">🌿</div>
+          <p class="mt-2 font-medium">Suplementos</p>
+        </a>
+        <a href="#" class="flex-none bg-white rounded-2xl shadow px-5 py-4 w-44 text-center hover:scale-105 transform transition">
+          <div class="text-3xl">🧪</div>
+          <p class="mt-2 font-medium">Probióticos</p>
+        </a>
+      </div>
+    </section>
 
-    <script type="module" src="main.js"></script>
+    <!-- Products grid -->
+    <section id="productos">
+      <h2 class="text-2xl font-semibold mb-6">Nuestros Productos</h2>
+      <div id="contenedor-productos" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Example card (JS can populate more) -->
+        <article class="bg-white rounded-2xl shadow-md overflow-hidden transform hover:-translate-y-1 hover:shadow-xl transition">
+          <div class="h-48 bg-gradient-to-br from-pastelLavender to-pastelPink flex items-center justify-center">
+            <img src="https://via.placeholder.com/320x180.png?text=Producto" alt="Producto" class="object-cover h-full w-full">
+          </div>
+          <div class="p-4">
+            <h3 class="font-semibold text-gray-900">Producto A</h3>
+            <p class="text-sm text-gray-500 mt-1">Descripción breve y atractiva del producto.</p>
+            <div class="mt-4 flex items-center justify-between">
+              <span class="font-bold text-indigo-600">$24</span>
+              <button class="bg-pastelYellow px-3 py-1 rounded-lg text-sm hover:brightness-95 transition">Añadir</button>
+            </div>
+          </div>
+        </article>
+        <!-- más cards por JS -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-gray-50 py-8 mt-12">
+    <div class="max-w-6xl mx-auto px-6 text-center text-sm text-gray-600">
+      <p>&copy; 2026 MediVita. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="main.js"></script>
 </body>
 </html>
