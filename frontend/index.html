@@ -29,41 +29,28 @@
     <section class="mb-10">
       <h2 class="text-xl font-semibold mb-4">Explora nuestras categorías</h2>
       <div class="flex gap-4 overflow-auto pb-2">
-        <a href="./catalogo.html?cat=vitaminas" class="flex-none bg-white rounded-2xl shadow px-5 py-4 w-44 text-center hover:scale-105 transform transition">
+        <button data-category="vitaminas" class="category-filter flex-none bg-white rounded-2xl shadow px-5 py-4 w-44 text-center hover:scale-105 transform transition">
           <div class="text-3xl">💊</div>
           <p class="mt-2 font-medium">Vitaminas</p>
-        </a>
-        <a href="#" class="flex-none bg-white rounded-2xl shadow px-5 py-4 w-44 text-center hover:scale-105 transform transition">
+        </button>
+        <button data-category="suplementos" class="category-filter flex-none bg-white rounded-2xl shadow px-5 py-4 w-44 text-center hover:scale-105 transform transition">
           <div class="text-3xl">🌿</div>
           <p class="mt-2 font-medium">Suplementos</p>
-        </a>
-        <a href="#" class="flex-none bg-white rounded-2xl shadow px-5 py-4 w-44 text-center hover:scale-105 transform transition">
+        </button>
+        <button data-category="probioticos" class="category-filter flex-none bg-white rounded-2xl shadow px-5 py-4 w-44 text-center hover:scale-105 transform transition">
           <div class="text-3xl">🧪</div>
           <p class="mt-2 font-medium">Probióticos</p>
-        </a>
+        </button>
       </div>
     </section>
 
     <!-- Products grid -->
     <section id="productos">
-      <h2 class="text-2xl font-semibold mb-6">Nuestros Productos</h2>
-      <div id="contenedor-productos" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <!-- Example card (JS can populate more) -->
-        <article class="bg-white rounded-2xl shadow-md overflow-hidden transform hover:-translate-y-1 hover:shadow-xl transition">
-          <div class="h-48 bg-gradient-to-br from-pastelLavender to-pastelPink flex items-center justify-center">
-            <img src="https://via.placeholder.com/320x180.png?text=Producto" alt="Producto" class="object-cover h-full w-full">
-          </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-gray-900">Producto A</h3>
-            <p class="text-sm text-gray-500 mt-1">Descripción breve y atractiva del producto.</p>
-            <div class="mt-4 flex items-center justify-between">
-              <span class="font-bold text-indigo-600">$24</span>
-              <button class="bg-pastelYellow px-3 py-1 rounded-lg text-sm hover:brightness-95 transition">Añadir</button>
-            </div>
-          </div>
-        </article>
-        <!-- más cards por JS -->
+      <div class="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
+        <h2 class="text-2xl font-semibold">Nuestros Productos</h2>
+        <p id="product-message" class="text-sm text-gray-600">Mostrando productos de la categoría <strong id="current-category">Vitaminas</strong>.</p>
       </div>
+      <div id="contenedor-productos" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></div>
     </section>
   </main>
 
