@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Producto</title>
+  <script>
+    tailwind = {}; // placeholder so tailwind config won't error if loaded later
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="antialiased text-gray-800 bg-gray-50">
+  <main class="max-w-4xl mx-auto p-6">
+    <div id="product-root" class="bg-white rounded-2xl shadow p-6">
+      <div id="loading" class="text-center py-12">Cargando producto...</div>
+    </div>
+  </main>
+  <script>
+    const API_BASE = 'https://www.mixgreen.cl';
+
+    function getQueryParam(name) {
+      return new URLSearchParams(window.location.search).get(name);
+    }
+
+    function renderProduct(p) {
+      const root = document.getElementById('product-root');
+      if (!p) {
+        root.innerHTML = '<div class="text-center text-red-500">No se encontró el producto.</div>';
+        return;
+      }
+      const imagen = (p.images && p.images[0] && p.images[0].src) || (p.featured_image && p.featured_image.src) || 'https://via.placeholder.com/640x480.png?text=Sin+imagen';
+      const precio = p.variants && p.variants[0] ? Number(p.variants[0].price).toLocaleString('es-CL', { minimumFractionDigits: 0 }) : 'N/D';
+      const description = p.body_html ? p.body_html : '';
+
+      root.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="md:col-span-1">
+            <div class="bg-white rounded-lg overflow-hidden shadow">
+              <img src="${imagen}" alt="${p.title}" class="w-full h-64 object-cover">
+            </div>
+          </div>
+          <div class="md:col-span-2">
+            <h1 class="text-2xl font-bold">${p.title}</h1>
+            <p class="text-indigo-600 font-semibold mt-2">$${precio}</p>
+            <div class="mt-4 text-gray-700">${description}</div>
+            <div class="mt-6">
+              <button id="add-to-cart" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg">Agregar al carrito</button>
+            </div>
+          </div>
+        </div>
+      `;
+      // expose current product and attach add-to-cart handler
+      try {
+        window.__currentProduct = p;
+        const btn = document.getElementById('add-to-cart');
+        if (btn) {
+          btn.addEventListener('click', () => addToCart(p));
+        }
+      } catch (err) { console.warn('attach add-to-cart failed', err); }
+    }
+
+    async function fetchProductByHandle(handle) {
+      try {
+        const res = await fetch(`${API_BASE}/products/${encodeURIComponent(handle)}.json`);
+        if (!res.ok) throw new Error('fetch failed ' + res.status);
+        const data = await res.json();
+        return data && data.product ? data.product : null;
+      } catch (err) {
+        console.warn('Fetch by handle failed', err);
+        return null;
+      }
+    }
+
+    function addToCart(product) {
+      if (!product) return alert('Producto inválido');
+      try {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        cart.push({ id: product.id, handle: product.handle, title: product.title, price: product.variants && product.variants[0] ? product.variants[0].price : null });
+        localStorage.setItem('cart', JSON.stringify(cart));
+        alert('Producto agregado al carrito');
+      } catch (err) {
+        console.warn('addToCart error', err);
+        alert('No se pudo agregar al carrito');
+      }
+    }
+
+    (async function() {
+      const stored = localStorage.getItem('selectedProduct');
+      let product = null;
+      if (stored) {
+        try { product = JSON.parse(stored); }
+        catch (e) { product = null; }
+      }
+      const handle = getQueryParam('handle');
+      if (!product && handle) {
+        product = await fetchProductByHandle(handle);
+      }
+      renderProduct(product);
+    })();
+  </script>
+</body>
+</html>

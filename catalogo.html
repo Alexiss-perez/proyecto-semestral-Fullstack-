@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>MediVita | Catálogo</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f8fafc; padding: 40px; margin: 0; }
+        h2 { color: #0f172a; margin-bottom: 20px; text-transform: capitalize; border-left: 4px solid #0f172a; padding-left: 10px; }
+        
+        /* Contenedor de la fila horizontal con scroll lateral */
+        .fila-productos-horizontal {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 20px 10px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            scroll-behavior: smooth;
+        }
+        
+        /* Tarjeta de cada producto individual */
+        .mini-product-card {
+            flex: 0 0 160px; /* Evita que se aplasten hacia el lado */
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .mini-product-card img { width: 100%; height: auto; border-radius: 6px; }
+        .mini-product-card h5 { font-size: 12px; color: #334155; margin: 8px 0 4px 0; height: 32px; overflow: hidden; }
+        .mini-product-card span { font-size: 13px; font-weight: bold; color: #0f172a; }
+        
+        /* Barra de scroll limpia */
+        .fila-productos-horizontal::-webkit-scrollbar { height: 6px; }
+        .fila-productos-horizontal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <h2 id="titulo-categoria">Cargando Productos...</h2>
+    
+    <div id="contenedor-productos" class="fila-productos-horizontal"></div>
+
+    <script src="catalogo.js"></script>
+</body>
+</html>
