@@ -97,7 +97,7 @@ function buildProductCard(product) {
               class="add-cart-btn flex-1 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
               data-product="${safeProduct}"
             >
-              Agregar al carrito
+              Comparar precio
             </button>
           </div>
         </div>
@@ -409,7 +409,7 @@ function addToCart(product, cantidad) {
   }
 
   saveCart(cart);
-  alert('Producto agregado al carrito');
+  alert('Producto agregado al comparador');
 }
 
 async function initProducts() {

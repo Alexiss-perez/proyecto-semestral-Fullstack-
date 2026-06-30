@@ -98,12 +98,12 @@
             <div class="mt-8 flex flex-wrap gap-4">
               <button id="add-to-cart"
                       class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold">
-                Agregar al carrito
+                Comparar precio
               </button>
 
               <a href="carrito.html"
                  class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-xl font-bold hover:bg-emerald-50">
-                Ver carrito
+                Ver comparador
               </a>
             </div>
 
@@ -152,7 +152,7 @@
       localStorage.setItem('medivitaCart', JSON.stringify(cart));
 
       const message = document.getElementById('cart-message');
-      message.textContent = '✅ Producto agregado al carrito';
+      message.textContent = '✅ Producto agregado al comparador';
     }
 
     (async function init() {

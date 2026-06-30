@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparador | MediVita</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+
+<header class="bg-white shadow-sm border-b">
+  <div class="max-w-7xl mx-auto flex justify-between items-center py-6 px-8">
+    <a href="index.html" class="text-4xl font-bold text-emerald-600">MediVita</a>
+    <nav class="flex gap-8 font-semibold">
+      <a href="index.html">Inicio</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="comparador.html" class="text-emerald-600">⚖️ Comparador</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto py-12 px-8">
+
+  <div class="flex justify-between items-center mb-10">
+    <div>
+      <p class="uppercase tracking-[8px] text-emerald-600 font-bold">Comparador</p>
+      <h1 class="text-5xl font-extrabold mt-3">Comparación de productos</h1>
+      <p class="text-slate-600 mt-3">
+        Revisa los productos seleccionados y compara sus precios antes de ir a la tienda.
+      </p>
+    </div>
+
+    <a href="catalogo.html" class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-full font-bold hover:bg-emerald-50">
+      ← Volver al catálogo
+    </a>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-8">
+    <section class="lg:col-span-2 bg-white rounded-3xl shadow p-8">
+      <h2 class="text-2xl font-bold mb-6">Productos seleccionados</h2>
+      <div id="cart-items"></div>
+      <div id="comparison-table" class="mt-10"></div>
+    </section>
+
+    <aside class="bg-white rounded-3xl shadow p-8 h-fit">
+      <h2 class="text-2xl font-bold mb-6">Resumen comparativo</h2>
+
+      <div class="flex justify-between mb-4">
+        <span>Total referencial</span>
+        <strong id="cart-total">$0</strong>
+      </div>
+
+      <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mb-6">
+        <p class="font-bold text-emerald-700">Mejor opción</p>
+        <p id="best-option" class="text-sm text-slate-600 mt-2">
+          Agrega productos para comparar.
+        </p>
+      </div>
+
+      <button id="clear-cart-btn" class="w-full border border-emerald-600 text-emerald-600 rounded-xl py-4 hover:bg-emerald-50 font-bold">
+        Limpiar comparación
+      </button>
+
+      <p class="text-xs text-slate-500 mt-6">
+        MediVita es un comparador informativo. No procesa pagos ni gestiona inventario.
+      </p>
+    </aside>
+  </div>
+
+</main>
+
+<script>
+function getCart() {
+  return JSON.parse(localStorage.getItem("medivitaCart")) || [];
+}
+
+function saveCart(cart) {
+  localStorage.setItem("medivitaCart", JSON.stringify(cart));
+}
+
+function formato(valor) {
+  return Number(valor || 0).toLocaleString("es-CL");
+}
+
+function renderCart() {
+  const carrito = getCart();
+  const contenedor = document.getElementById("cart-items");
+  const total = document.getElementById("cart-total");
+  const bestOption = document.getElementById("best-option");
+  const comparisonTable = document.getElementById("comparison-table");
+
+  if (carrito.length === 0) {
+    contenedor.innerHTML = `
+      <div class="text-center py-20">
+        <p class="text-6xl">⚖️</p>
+        <p class="mt-4 text-slate-500">Todavía no hay productos para comparar.</p>
+        <a href="catalogo.html" class="inline-block mt-6 bg-emerald-600 text-white px-6 py-3 rounded-full font-bold">
+          Ir al catálogo
+        </a>
+      </div>
+    `;
+
+    total.textContent = "$0";
+    bestOption.textContent = "Agrega productos para comparar.";
+    comparisonTable.innerHTML = "";
+    return;
+  }
+
+  let suma = 0;
+  let mejorProducto = carrito[0];
+
+  contenedor.innerHTML = carrito.map((p, i) => {
+    const cantidad = Number(p.cantidad || 1);
+    const precio = Number(p.price || 0);
+    const subtotal = precio * cantidad;
+
+    suma += subtotal;
+
+    if (precio < Number(mejorProducto.price || 0)) {
+      mejorProducto = p;
+    }
+
+    return `
+      <div class="flex gap-5 items-center border-b py-5">
+        <img src="${p.image || 'https://via.placeholder.com/100'}" class="w-24 h-24 rounded-xl object-cover">
+
+        <div class="flex-1">
+          <h3 class="font-bold text-lg">${p.title}</h3>
+          <p class="text-slate-500">Cantidad comparada: ${cantidad}</p>
+          <p class="text-slate-500">Precio unitario: $${formato(precio)}</p>
+          <p class="font-bold text-emerald-600">Total referencial: $${formato(subtotal)}</p>
+        </div>
+
+        <button onclick="eliminar(${i})" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-xl">
+          Eliminar
+        </button>
+      </div>
+    `;
+  }).join("");
+
+  total.textContent = "$" + formato(suma);
+
+  bestOption.innerHTML = `
+    <strong>${mejorProducto.title}</strong><br>
+    Precio menor encontrado: $${formato(mejorProducto.price)}
+  `;
+
+  renderComparisonTable(carrito);
+}
+
+function renderComparisonTable(carrito) {
+  const tableContainer = document.getElementById("comparison-table");
+
+  if (carrito.length < 2) {
+    tableContainer.innerHTML = `
+      <div class="mt-8 rounded-2xl bg-slate-50 border border-slate-200 p-6 text-slate-600">
+        Agrega al menos dos productos para ver una comparación detallada.
+      </div>
+    `;
+    return;
+  }
+
+  const productos = carrito
+    .map(p => ({
+      ...p,
+      precio: Number(p.price || 0),
+      cantidad: Number(p.cantidad || 1)
+    }))
+    .sort((a, b) => a.precio - b.precio);
+
+  tableContainer.innerHTML = `
+    <h2 class="text-2xl font-bold mt-10 mb-6">Tabla comparativa</h2>
+
+    <div class="overflow-x-auto rounded-2xl border border-slate-200">
+      <table class="w-full text-left bg-white">
+        <thead class="bg-slate-100">
+          <tr>
+            <th class="p-4">Característica</th>
+            ${productos.map(p => `<th class="p-4">${p.title}</th>`).join("")}
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr class="border-t">
+            <td class="p-4 font-semibold">Precio unitario</td>
+            ${productos.map(p => `<td class="p-4">$${formato(p.precio)}</td>`).join("")}
+          </tr>
+
+          <tr class="border-t">
+            <td class="p-4 font-semibold">Cantidad comparada</td>
+            ${productos.map(p => `<td class="p-4">${p.cantidad}</td>`).join("")}
+          </tr>
+
+          <tr class="border-t">
+            <td class="p-4 font-semibold">Total referencial</td>
+            ${productos.map(p => `<td class="p-4 font-bold text-emerald-600">$${formato(p.precio * p.cantidad)}</td>`).join("")}
+          </tr>
+
+          <tr class="border-t">
+            <td class="p-4 font-semibold">Evaluación</td>
+            ${productos.map((p, index) => `
+              <td class="p-4">
+                ${index === 0 ? "✅ Mejor precio" : "Comparar según necesidad"}
+              </td>
+            `).join("")}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function eliminar(index) {
+  const carrito = getCart();
+  carrito.splice(index, 1);
+  saveCart(carrito);
+  renderCart();
+}
+
+document.getElementById("clear-cart-btn").onclick = () => {
+  localStorage.removeItem("medivitaCart");
+  renderCart();
+};
+
+renderCart();
+</script>
+
+</body>
+</html>
