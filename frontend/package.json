@@ -1,0 +1,13 @@
+{
+  "name": "suplementos-ofertas-frontend",
+  "version": "1.0.0",
+  "description": "Frontend de la plataforma de ofertas de suplementos y vitaminas.",
+  "main": "main.js",
+  "scripts": {
+    "start": "python -m http.server 5500",
+    "dev": "python -m http.server 5500"
+  },
+  "keywords": ["frontend", "suplementos", "ofertas"],
+  "author": "Equipo Fullstack III",
+  "license": "MIT"
+}
