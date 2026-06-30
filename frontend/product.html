@@ -2,19 +2,40 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Producto</title>
-  <script>
-    tailwind = {}; // placeholder so tailwind config won't error if loaded later
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Producto | MediVita</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="antialiased text-gray-800 bg-gray-50">
-  <main class="max-w-4xl mx-auto p-6">
-    <div id="product-root" class="bg-white rounded-2xl shadow p-6">
-      <div id="loading" class="text-center py-12">Cargando producto...</div>
+
+<body class="antialiased text-slate-900 bg-slate-50">
+
+  <header class="bg-white border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-6 py-6 flex justify-between items-center">
+      <a href="index.html" class="text-3xl font-extrabold tracking-wide text-emerald-600">
+        MediVita
+      </a>
+
+      <nav class="flex gap-6 font-semibold">
+        <a href="index.html" class="hover:text-emerald-600">Inicio</a>
+        <a href="catalogo.html" class="hover:text-emerald-600">Catálogo</a>
+        <a href="carrito.html" class="hover:text-emerald-600">Carrito</a>
+      </nav>
     </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-10">
+
+    <a href="catalogo.html"
+       class="inline-block bg-emerald-600 text-white px-6 py-3 rounded-full font-bold hover:bg-emerald-700">
+      ← Volver al catálogo
+    </a>
+
+    <section id="product-root" class="mt-8 bg-white rounded-3xl shadow p-8">
+      <div id="loading" class="text-center py-12">Cargando producto...</div>
+    </section>
+
   </main>
+
   <script>
     const API_BASE = 'https://www.mixgreen.cl';
 
@@ -22,41 +43,78 @@
       return new URLSearchParams(window.location.search).get(name);
     }
 
-    function renderProduct(p) {
+    function formatPrice(value) {
+      return Number(value || 0).toLocaleString('es-CL', { minimumFractionDigits: 0 });
+    }
+
+    function renderProduct(product) {
       const root = document.getElementById('product-root');
-      if (!p) {
-        root.innerHTML = '<div class="text-center text-red-500">No se encontró el producto.</div>';
+
+      if (!product) {
+        root.innerHTML = `
+          <div class="text-center py-12">
+            <p class="text-red-500 font-bold">No se encontró el producto.</p>
+            <a href="catalogo.html" class="inline-block mt-6 bg-emerald-600 text-white px-6 py-3 rounded-full font-bold">
+              Volver al catálogo
+            </a>
+          </div>
+        `;
         return;
       }
-      const imagen = (p.images && p.images[0] && p.images[0].src) || (p.featured_image && p.featured_image.src) || 'https://via.placeholder.com/640x480.png?text=Sin+imagen';
-      const precio = p.variants && p.variants[0] ? Number(p.variants[0].price).toLocaleString('es-CL', { minimumFractionDigits: 0 }) : 'N/D';
-      const description = p.body_html ? p.body_html : '';
+
+      const image =
+        product.images?.[0]?.src ||
+        product.featured_image?.src ||
+        'https://via.placeholder.com/640x480.png?text=Sin+imagen';
+
+      const price = product.variants?.[0] ? Number(product.variants[0].price) : 0;
+      const description = product.body_html || 'Producto disponible en el catálogo MediVita.';
 
       root.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="md:col-span-1">
-            <div class="bg-white rounded-lg overflow-hidden shadow">
-              <img src="${imagen}" alt="${p.title}" class="w-full h-64 object-cover">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div>
+            <div class="bg-white rounded-2xl overflow-hidden shadow border border-slate-100">
+              <img src="${image}" alt="${product.title}" class="w-full h-80 object-contain">
             </div>
           </div>
+
           <div class="md:col-span-2">
-            <h1 class="text-2xl font-bold">${p.title}</h1>
-            <p class="text-indigo-600 font-semibold mt-2">$${precio}</p>
-            <div class="mt-4 text-gray-700">${description}</div>
-            <div class="mt-6">
-              <button id="add-to-cart" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg">Agregar al carrito</button>
+            <p class="text-sm uppercase tracking-[0.35em] text-emerald-600 font-bold">
+              Detalle del producto
+            </p>
+
+            <h1 class="mt-3 text-4xl font-extrabold">
+              ${product.title}
+            </h1>
+
+            <p class="mt-4 text-2xl text-indigo-600 font-bold">
+              $${formatPrice(price)}
+            </p>
+
+            <div class="mt-6 text-slate-700 leading-relaxed text-lg">
+              ${description}
             </div>
+
+            <div class="mt-8 flex flex-wrap gap-4">
+              <button id="add-to-cart"
+                      class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold">
+                Agregar al carrito
+              </button>
+
+              <a href="carrito.html"
+                 class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-xl font-bold hover:bg-emerald-50">
+                Ver carrito
+              </a>
+            </div>
+
+            <p id="cart-message" class="mt-5 text-emerald-700 font-bold"></p>
           </div>
         </div>
       `;
-      // expose current product and attach add-to-cart handler
-      try {
-        window.__currentProduct = p;
-        const btn = document.getElementById('add-to-cart');
-        if (btn) {
-          btn.addEventListener('click', () => addToCart(p));
-        }
-      } catch (err) { console.warn('attach add-to-cart failed', err); }
+
+      document.getElementById('add-to-cart').addEventListener('click', () => {
+        addToCart(product);
+      });
     }
 
     async function fetchProductByHandle(handle) {
@@ -64,7 +122,7 @@
         const res = await fetch(`${API_BASE}/products/${encodeURIComponent(handle)}.json`);
         if (!res.ok) throw new Error('fetch failed ' + res.status);
         const data = await res.json();
-        return data && data.product ? data.product : null;
+        return data?.product || null;
       } catch (err) {
         console.warn('Fetch by handle failed', err);
         return null;
@@ -72,31 +130,52 @@
     }
 
     function addToCart(product) {
-      if (!product) return alert('Producto inválido');
-      try {
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        cart.push({ id: product.id, handle: product.handle, title: product.title, price: product.variants && product.variants[0] ? product.variants[0].price : null });
-        localStorage.setItem('cart', JSON.stringify(cart));
-        alert('Producto agregado al carrito');
-      } catch (err) {
-        console.warn('addToCart error', err);
-        alert('No se pudo agregar al carrito');
+      const cart = JSON.parse(localStorage.getItem('medivitaCart')) || [];
+
+      const price = product.variants?.[0] ? Number(product.variants[0].price) : 0;
+      const image = product.images?.[0]?.src || product.featured_image?.src || '';
+
+      const existing = cart.find(item => item.handle === product.handle);
+
+      if (existing) {
+        existing.cantidad += 1;
+      } else {
+        cart.push({
+          handle: product.handle,
+          title: product.title,
+          price: price,
+          image: image,
+          cantidad: 1
+        });
       }
+
+      localStorage.setItem('medivitaCart', JSON.stringify(cart));
+
+      const message = document.getElementById('cart-message');
+      message.textContent = '✅ Producto agregado al carrito';
     }
 
-    (async function() {
+    (async function init() {
       const stored = localStorage.getItem('selectedProduct');
       let product = null;
+
       if (stored) {
-        try { product = JSON.parse(stored); }
-        catch (e) { product = null; }
+        try {
+          product = JSON.parse(stored);
+        } catch {
+          product = null;
+        }
       }
+
       const handle = getQueryParam('handle');
+
       if (!product && handle) {
         product = await fetchProductByHandle(handle);
       }
+
       renderProduct(product);
     })();
   </script>
+
 </body>
 </html>

@@ -1,96 +1,69 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediVita | Suplementos y Medicamentos</title>
-    <script>
-      window.tailwind = window.tailwind || {};
-      window.tailwind.config = {
-        theme: { extend: { colors: { pastelPink: '#FCE7F3', pastelLavender: '#EDE9FE', pastelMint: '#DFFCF0', pastelYellow: '#FFF7CD' } } }
-      };
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medivita | Comparador de precios</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="antialiased text-slate-900 bg-slate-50">
-  <header class="bg-white shadow-sm">
-    <div class="mx-auto max-w-7xl px-6 py-6 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <p class="text-sm uppercase tracking-[0.35em] text-emerald-600">Comparador de precios</p>
-        <h1 class="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">Ahorra en tus compras de medicamentos y suplementos</h1>
-        <p class="mt-3 max-w-2xl text-sm text-slate-600">Compara productos, marcas y precios al instante.</p>
-      </div>
-      <div class="rounded-[32px] border border-slate-200 bg-slate-50 px-5 py-4 shadow-sm">
-        <label class="block text-sm font-semibold text-slate-700">Buscar producto</label>
-        <div class="mt-3 flex items-center gap-3">
-          <input type="search" placeholder="Ej. vitamina C, omega 3" class="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" />
-          <button class="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700">Buscar</button>
-        </div>
-      </div>
-    </div>
+<body class="landing-body">
+
+  <header class="landing-header">
+    <h1>Medivita</h1>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="carrito.html">Carrito</a>
+    </nav>
   </header>
 
-  <main class="mx-auto max-w-7xl px-6 py-10">
-    <div id="diag-status" class="mb-8 rounded-3xl border border-amber-100 bg-amber-50 px-6 py-4 text-sm text-amber-800 hidden"></div>
-
-    <section class="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
-      <aside class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-        <h2 class="text-lg font-semibold text-slate-900">Filtros rápidos</h2>
-        <div class="mt-6 space-y-5">
-          <div>
-            <p class="text-sm font-medium text-slate-700">Categorías</p>
-            <div id="category-filter-list" class="mt-4 space-y-3">
-              <button type="button" data-category="vitaminas" class="category-filter w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm text-slate-700 hover:bg-emerald-50">Vitaminas</button>
-              <button type="button" data-category="suplementos" class="category-filter w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm text-slate-700 hover:bg-emerald-50">Suplementos</button>
-              <button type="button" data-category="probioticos" class="category-filter w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm text-slate-700 hover:bg-emerald-50">Probióticos</button>
-            </div>
-          </div>
-          <div>
-            <p class="text-sm font-medium text-slate-700">Rango de precio</p>
-            <div class="mt-4 grid gap-3">
-              <button class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm text-slate-700 hover:bg-emerald-50">Hasta $10.000</button>
-              <button class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm text-slate-700 hover:bg-emerald-50">$10.000 - $25.000</button>
-              <button class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm text-slate-700 hover:bg-emerald-50">Más de $25.000</button>
-            </div>
-          </div>
+  <main class="landing-main">
+    <section class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">Comparador de precios</p>
+        <h2>Ahorra en medicamentos y suplementos</h2>
+        <p>
+          Medivita te ayuda a comparar productos, revisar ofertas y encontrar mejores precios
+          de forma rápida y sencilla.
+        </p>
+        <div class="hero-buttons">
+          <a class="btn-primary" href="catalogo.html">Explorar productos</a>
+          <a class="btn-secondary" href="#beneficios">Ver beneficios</a>
         </div>
-      </aside>
+      </div>
 
-      <section>
-        <div class="mb-8 rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p class="text-sm uppercase tracking-[0.3em] text-slate-500">Resultados</p>
-              <h2 class="mt-2 text-2xl font-semibold text-slate-900">Productos comparados</h2>
-            </div>
-            <p id="product-message" class="text-sm text-slate-600">Cargando productos...</p>
-          </div>
-        </div>
+      <div class="hero-card">
+        <h3>¿Qué puedes hacer?</h3>
+        <ul>
+          <li>Comparar precios de productos.</li>
+          <li>Filtrar por categoría y rango de precio.</li>
+          <li>Guardar productos en carrito.</li>
+          <li>Simular una compra final.</li>
+        </ul>
+      </div>
+    </section>
 
-        <div id="productos-loader" class="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-          <div class="h-72 rounded-3xl bg-slate-100 shadow animate-pulse"></div>
-          <div class="h-72 rounded-3xl bg-slate-100 shadow animate-pulse"></div>
-          <div class="h-72 rounded-3xl bg-slate-100 shadow animate-pulse"></div>
-        </div>
+    <section id="beneficios" class="benefits">
+      <article>
+        <h3>💊 Catálogo simple</h3>
+        <p>Visualiza medicamentos, vitaminas y suplementos desde una interfaz clara.</p>
+      </article>
 
-        <div id="contenedor-productos" class="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 hidden"></div>
-        <div id="pagination-controls" class="mt-8 flex justify-center"></div>
-      </section>
+      <article>
+        <h3>🔎 Búsqueda rápida</h3>
+        <p>Encuentra productos por nombre o categoría en pocos segundos.</p>
+      </article>
+
+      <article>
+        <h3>💚 Ahorro inteligente</h3>
+        <p>Compara precios y toma mejores decisiones antes de comprar.</p>
+      </article>
     </section>
   </main>
 
-  <footer class="bg-white py-8">
-    <div class="mx-auto max-w-7xl px-6 text-center text-sm text-slate-500">
-      <p>&copy; 2026 MediVita. Comparador de precios al instante.</p>
-    </div>
+  <footer class="landing-footer">
+    <p>© 2026 Medivita - Proyecto académico Fullstack III</p>
   </footer>
 
-  <script type="module" src="main.js"></script>
-  <script>
-    window.__diags = {
-      log: msg => console.log('[DIAG]', msg),
-      showAlert: msg => alert(msg)
-    };
-  </script>
 </body>
 </html>

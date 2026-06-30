@@ -226,3 +226,182 @@ footer {
     color: inherit;        /* Mantiene los colores de texto que ya tenías */
     display: block;        /* Hace que se siga comportando como una caja */
 }   
+
+/* FIX LANDING MEDIVITA */
+
+body.landing-body {
+  margin: 0 !important;
+  background: #f6f9fb !important;
+  color: #081936 !important;
+}
+
+body.landing-body .landing-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 24px 8% !important;
+  background: white !important;
+  border-bottom: 1px solid #e5edf3 !important;
+}
+
+body.landing-body .landing-header h1 {
+  color: #009879 !important;
+  font-size: 36px !important;
+  font-weight: 800 !important;
+  letter-spacing: 3px !important;
+}
+
+body.landing-body .landing-header nav {
+  display: flex !important;
+  gap: 28px !important;
+}
+
+body.landing-body .landing-header a {
+  text-decoration: none !important;
+  color: #081936 !important;
+  font-weight: 700 !important;
+}
+
+body.landing-body .landing-main {
+  padding: 70px 8% !important;
+}
+
+body.landing-body .hero {
+  display: grid !important;
+  grid-template-columns: 1.3fr 0.7fr !important;
+  gap: 50px !important;
+  align-items: center !important;
+}
+
+body.landing-body .eyebrow {
+  text-transform: uppercase !important;
+  letter-spacing: 8px !important;
+  color: #009879 !important;
+  font-weight: 700 !important;
+}
+
+body.landing-body .hero-text h2 {
+  font-size: 56px !important;
+  line-height: 1.05 !important;
+  margin: 18px 0 !important;
+}
+
+body.landing-body .hero-text p {
+  font-size: 20px !important;
+  color: #42526b !important;
+}
+
+body.landing-body .hero-card {
+  background: white !important;
+  padding: 32px !important;
+  border-radius: 28px !important;
+  box-shadow: 0 12px 35px rgba(8, 25, 54, 0.08) !important;
+}
+
+body.landing-body .hero-card li {
+  margin-bottom: 14px !important;
+  color: #42526b !important;
+}
+
+body.landing-body .hero-buttons {
+  display: flex !important;
+  gap: 16px !important;
+  margin-top: 28px !important;
+}
+
+body.landing-body .btn-primary,
+body.landing-body .btn-secondary {
+  padding: 14px 24px !important;
+  border-radius: 999px !important;
+  text-decoration: none !important;
+  font-weight: 700 !important;
+}
+
+body.landing-body .btn-primary {
+  background: #009879 !important;
+  color: white !important;
+}
+
+body.landing-body .btn-secondary {
+  background: white !important;
+  color: #009879 !important;
+  border: 1px solid #009879 !important;
+}
+
+body.landing-body .benefits {
+  margin-top: 60px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 24px !important;
+}
+
+body.landing-body .benefits article {
+  background: white !important;
+  padding: 28px !important;
+  border-radius: 24px !important;
+  box-shadow: 0 8px 25px rgba(8, 25, 54, 0.06) !important;
+}
+
+body.landing-body .landing-footer {
+  text-align: center !important;
+  padding: 24px !important;
+  background: white !important;
+  color: #607086 !important;
+  border-top: 1px solid #e5edf3 !important;
+}
+
+/* Mejora visual inicio MediVita */
+
+body.landing-body {
+  background:
+    radial-gradient(circle at top right, rgba(0, 152, 121, 0.10), transparent 35%),
+    #f6f9fb;
+}
+
+body.landing-body .landing-main {
+  padding-top: 90px !important;
+}
+
+body.landing-body .hero-text h2 {
+  max-width: 850px;
+}
+
+body.landing-body .hero-text p {
+  max-width: 780px;
+}
+
+body.landing-body .hero-card {
+  border: 1px solid #e5edf3;
+  transform: translateY(-10px);
+}
+
+body.landing-body .hero-card h3 {
+  color: #081936;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+body.landing-body .hero-card ul {
+  padding-left: 18px;
+}
+
+body.landing-body .benefits article {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.landing-body .benefits article:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 35px rgba(8, 25, 54, 0.10);
+}
+
+body.landing-body .benefits h3 {
+  font-size: 22px;
+}
+
+body.landing-body .btn-primary:hover {
+  background: #007f66 !important;
+}
+
+body.landing-body .btn-secondary:hover {
+  background: #ecfdf7 !important;
+}

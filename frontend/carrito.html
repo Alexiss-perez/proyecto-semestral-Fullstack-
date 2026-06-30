@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrito | MediVita</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+
+<header class="bg-white shadow-sm border-b">
+  <div class="max-w-7xl mx-auto flex justify-between items-center py-6 px-8">
+    <a href="index.html" class="text-4xl font-bold text-emerald-600">MediVita</a>
+
+    <nav class="flex gap-8 font-semibold">
+      <a href="index.html">Inicio</a>
+      <a href="catalogo.html">Catálogo</a>
+      <a href="carrito.html" class="text-emerald-600">🛒 Carrito</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto py-12 px-8">
+
+  <div class="flex justify-between items-center mb-10">
+    <div>
+      <p class="uppercase tracking-[8px] text-emerald-600 font-bold">Carrito</p>
+      <h1 class="text-5xl font-extrabold mt-3">Resumen de compra</h1>
+      <p class="text-slate-600 mt-3">Revisa los productos antes de finalizar tu compra simulada.</p>
+    </div>
+
+    <a href="catalogo.html" class="border border-emerald-600 text-emerald-600 px-6 py-3 rounded-full font-bold hover:bg-emerald-50">
+      ← Seguir comprando
+    </a>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-8">
+
+    <section class="lg:col-span-2 bg-white rounded-3xl shadow p-8">
+      <h2 class="text-2xl font-bold mb-6">Productos seleccionados</h2>
+      <div id="cart-items"></div>
+    </section>
+
+    <aside class="bg-white rounded-3xl shadow p-8 h-fit">
+      <h2 class="text-2xl font-bold mb-6">Resumen</h2>
+
+      <div class="flex justify-between mb-4">
+        <span>Subtotal</span>
+        <strong id="cart-subtotal">$0</strong>
+      </div>
+
+      <div class="flex justify-between mb-4">
+        <span>Descuento</span>
+        <strong id="cart-discount">$0</strong>
+      </div>
+
+      <hr class="my-5">
+
+      <div class="flex justify-between mb-6 text-xl">
+        <span>Total</span>
+        <strong id="cart-total">$0</strong>
+      </div>
+
+      <label class="block font-semibold mb-2">Método de pago</label>
+      <select id="payment-method" class="w-full border border-slate-300 rounded-xl px-4 py-3 mb-4">
+        <option value="">Selecciona un método</option>
+        <option value="Tarjeta de débito">Tarjeta de débito</option>
+        <option value="Tarjeta de crédito">Tarjeta de crédito</option>
+        <option value="Transferencia bancaria">Transferencia bancaria</option>
+        <option value="WebPay simulado">WebPay simulado</option>
+      </select>
+
+      <button id="checkout-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl py-4">
+        Finalizar compra
+      </button>
+
+      <button id="clear-cart-btn" class="w-full border border-emerald-600 text-emerald-600 rounded-xl py-4 mt-4 hover:bg-emerald-50">
+        Vaciar carrito
+      </button>
+
+      <div id="checkout-message" class="mt-6 text-emerald-700 font-bold"></div>
+    </aside>
+
+  </div>
+
+</main>
+
+<script>
+function getCart() {
+  return JSON.parse(localStorage.getItem("medivitaCart")) || [];
+}
+
+function saveCart(cart) {
+  localStorage.setItem("medivitaCart", JSON.stringify(cart));
+}
+
+function formato(valor) {
+  return Number(valor || 0).toLocaleString("es-CL");
+}
+
+function renderCart() {
+  const carrito = getCart();
+  const contenedor = document.getElementById("cart-items");
+  const subtotalEl = document.getElementById("cart-subtotal");
+  const discountEl = document.getElementById("cart-discount");
+  const totalEl = document.getElementById("cart-total");
+
+  if (carrito.length === 0) {
+    contenedor.innerHTML = `
+      <div class="text-center py-20">
+        <p class="text-6xl">🛒</p>
+        <p class="mt-4 text-slate-500">Tu carrito está vacío.</p>
+        <a href="catalogo.html" class="inline-block mt-6 bg-emerald-600 text-white px-6 py-3 rounded-full font-bold">
+          Ver catálogo
+        </a>
+      </div>
+    `;
+
+    subtotalEl.textContent = "$0";
+    discountEl.textContent = "$0";
+    totalEl.textContent = "$0";
+    return;
+  }
+
+  let subtotal = 0;
+
+  contenedor.innerHTML = carrito.map((p, i) => {
+    const cantidad = Number(p.cantidad || 1);
+    const precio = Number(p.price || 0);
+    const itemSubtotal = precio * cantidad;
+    subtotal += itemSubtotal;
+
+    return `
+      <div class="flex gap-5 items-center border-b py-5">
+        <img src="${p.image || 'https://via.placeholder.com/100'}" class="w-24 h-24 rounded-xl object-cover">
+
+        <div class="flex-1">
+          <h3 class="font-bold text-lg">${p.title}</h3>
+          <p class="text-slate-500">Cantidad: ${cantidad}</p>
+          <p class="text-slate-500">Precio unitario: $${formato(precio)}</p>
+          <p class="font-bold text-emerald-600">Subtotal: $${formato(itemSubtotal)}</p>
+        </div>
+
+        <button onclick="eliminar(${i})" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-xl">
+          Eliminar
+        </button>
+      </div>
+    `;
+  }).join("");
+
+  const descuento = subtotal >= 50000 ? Math.round(subtotal * 0.05) : 0;
+  const total = subtotal - descuento;
+
+  subtotalEl.textContent = "$" + formato(subtotal);
+  discountEl.textContent = "-$" + formato(descuento);
+  totalEl.textContent = "$" + formato(total);
+}
+
+function eliminar(index) {
+  const carrito = getCart();
+  carrito.splice(index, 1);
+  saveCart(carrito);
+  renderCart();
+}
+
+document.getElementById("clear-cart-btn").onclick = () => {
+  localStorage.removeItem("medivitaCart");
+  renderCart();
+  document.getElementById("checkout-message").innerHTML = "";
+};
+
+document.getElementById("checkout-btn").onclick = () => {
+  const carrito = getCart();
+  const metodoPago = document.getElementById("payment-method").value;
+
+  if (carrito.length === 0) {
+    alert("No hay productos en el carrito");
+    return;
+  }
+
+  if (!metodoPago) {
+    alert("Selecciona un método de pago");
+    return;
+  }
+
+  const numero = Math.floor(Math.random() * 900000) + 100000;
+
+  localStorage.removeItem("medivitaCart");
+  renderCart();
+
+  document.getElementById("checkout-message").innerHTML = `
+    ✅ Compra simulada realizada correctamente.<br>
+    Método de pago: <strong>${metodoPago}</strong><br>
+    Número de pedido: <strong>#${numero}</strong>
+  `;
+};
+
+renderCart();
+</script>
+
+</body>
+</html>
