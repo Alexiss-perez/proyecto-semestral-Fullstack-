@@ -17,77 +17,110 @@ const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const URL_MIXGREEN = 'https://www.mixgreen.cl/products.json?limit=40';
+const URL_ALLNUTRITION = 'https://allnutrition.cl/products.json?limit=40';
+
+/**
+ * Función auxiliar para estandarizar el mapeo de productos Shopify
+ */
+function mapearProductoShopify(prod, tiendaNombre, baseUrl) {
+    const variante = prod.variants && prod.variants[0] ? prod.variants[0] : null;
+    
+    const precioFinal = variante ? parseFloat(variante.price) : 0;
+    const precioLista = variante && variante.compare_at_price ? parseFloat(variante.compare_at_price) : null;
+    
+    const tieneDescuento = precioLista && precioLista > precioFinal;
+    const precioNormal = tieneDescuento ? precioLista : precioFinal;
+    const precioOferta = precioFinal;
+    
+    let porcentajeDescuento = 0;
+    if (tieneDescuento) {
+        porcentajeDescuento = Math.round(((precioNormal - precioOferta) / precioNormal) * 100);
+    }
+
+    const imagenUrl = prod.images && prod.images[0] ? prod.images[0].src : null;
+    const linkTienda = `${baseUrl}/products/${prod.handle}`;
+
+    return {
+        nombre: prod.title,
+        marca: prod.vendor || tiendaNombre,
+        categoria: prod.product_type || "General",
+        precio_normal: precioNormal,
+        precio_oferta: precioOferta,
+        porcentaje_descuento: porcentajeDescuento,
+        link_tienda: linkTienda,
+        tienda_origen: tiendaNombre,
+        imagen_url: imagenUrl
+    };
+}
 
 app.get('/api/scrape', async (req, res) => {
     try {
-        console.log("-> Scraper consumiendo Mixgreen API...");
-        const respuesta = await fetch(URL_MIXGREEN);
-        const data = await respuesta.json();
+        console.log("-> Scraper simultáneo (Mixgreen + AllNutrition)...");
 
-        if (!data.products || data.products.length === 0) {
-            return res.status(400).json({ success: false, error: "No se obtuvieron productos de la API" });
+        // Consultar ambas APIs al mismo tiempo de forma eficiente
+        const [resMixgreen, resAllNutrition] = await Promise.all([
+            fetch(URL_MIXGREEN).catch(err => ({ error: true, msg: err.message })),
+            fetch(URL_ALLNUTRITION).catch(err => ({ error: true, msg: err.message }))
+        ]);
+
+        let todosLosProductos = [];
+
+        // 1. Procesar Mixgreen
+        if (!resMixgreen.error) {
+            const dataMix = await resMixgreen.json();
+            if (dataMix.products) {
+                const mapeadosMix = dataMix.products.map(prod => 
+                    mapearProductoShopify(prod, 'Mixgreen', 'https://www.mixgreen.cl')
+                );
+                todosLosProductos.push(...mapeadosMix);
+                console.log(`✅ Mixgreen mapeado: ${mapeadosMix.length} productos.`);
+            }
+        } else {
+            console.error("❌ Error al obtener Mixgreen:", resMixgreen.msg);
         }
 
-        // Mapear los productos de Mixgreen a la estructura de la tabla "Productos" en Supabase
-        const productosMapeados = data.products.map(prod => {
-            const variante = prod.variants && prod.variants[0] ? prod.variants[0] : null;
-            
-            // 1.- Extrae precio final que se paga en la tienda (Shopify usa 'price')
-            const precioFinal = variante ? parseFloat(variante.price) : 0;
-            
-            // 2.- Extrae precio normal o de comparación ('compare_at_price')
-            const precioLista = variante && variante.compare_at_price ? parseFloat(variante.compare_at_price) : null;
-            
-            // 3.- Determina precio normal y precio oferta
-            // Si tiene compare_at_price y es mayor que el precio final, hay una oferta real.
-            const tieneDescuento = precioLista && precioLista > precioFinal;
-            const precioNormal = tieneDescuento ? precioLista : precioFinal;
-            const precioOferta = precioFinal;
-            
-            // 4.- Calcula porcentaje de descuento
-            let porcentajeDescuento = 0;
-            if (tieneDescuento) {
-                porcentajeDescuento = Math.round(((precioNormal - precioOferta) / precioNormal) * 100);
+        // 2. Procesar AllNutrition
+        if (!resAllNutrition.error) {
+            const dataAll = await resAllNutrition.json();
+            if (dataAll.products) {
+                const mapeadosAll = dataAll.products.map(prod => 
+                    mapearProductoShopify(prod, 'AllNutrition', 'https://allnutrition.cl')
+                );
+                todosLosProductos.push(...mapeadosAll);
+                console.log(`✅ AllNutrition mapeado: ${mapeadosAll.length} productos.`);
             }
+        } else {
+            console.error("❌ Error al obtener AllNutrition:", resAllNutrition.msg);
+        }
 
-            // Extraee URL de la primera imagen si es q existe
-            const imagenUrl = prod.images && prod.images[0] ? prod.images[0].src : null;
-            // Genera enlace del producto usando handle de Mixgreen
-            const linkTienda = `https://www.mixgreen.cl/products/${prod.handle}`;
+        // Si ninguna API trajo nada, se detiene el proceso
+        if (todosLosProductos.length === 0) {
+            return res.status(400).json({ success: false, error: "No se obtuvieron productos de ninguna tienda." });
+        }
 
-            return {
-                nombre: prod.title,
-                marca: prod.vendor,
-                categoria: prod.product_type || "General",
-                precio_normal: precioNormal,
-                precio_oferta: precioOferta,
-                porcentaje_descuento: porcentajeDescuento,
-                link_tienda: linkTienda,
-                tienda_origen: 'Mixgreen',
-                imagen_url: imagenUrl
-            };
-        });
+        console.log(`-> Actualizando ${todosLosProductos.length} productos en Supabase usando upsert...`);
 
-        console.log(`-> Guardando ${productosMapeados.length} productos en Supabase...`);
-
-        // Insertar masivamente los productos mapeados en la tabla "Productos"
-        // Nota: Al usar insert() directo, se agregarán registros nuevos con IDs autogenerados.
+        // upsert con  { onConflict: 'link_tienda' }
         const { error: supabaseError } = await supabase
             .from('Productos')
-            .insert(productosMapeados);
+            .upsert(todosLosProductos, { onConflict: 'link_tienda' });
 
         if (supabaseError) {
             throw supabaseError;
         }
 
+        // se envia un único JSON consolidado
         res.json({ 
             success: true, 
-            message: `Scraping exitoso. ${productosMapeados.length} productos guardados en Supabase.`,
-            products: productosMapeados 
+            message: `Scraping Multi-tienda exitoso. Base de datos actualizada sin duplicados.`,
+            total_total: todosLosProductos.length,
+            total_mixgreen: todosLosProductos.filter(p => p.tienda_origen === 'Mixgreen').length,
+            total_allnutrition: todosLosProductos.filter(p => p.tienda_origen === 'AllNutrition').length,
+            products: todosLosProductos 
         });
 
     } catch (error) {
-        console.error("Error en el servicio scraper:", error);
+        console.error("Error crítico en el servicio scraper:", error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
