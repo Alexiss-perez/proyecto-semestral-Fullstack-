@@ -9,5 +9,14 @@
     "dotenv": "^17.4.2",
     "express": "^4.19.2",
     "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "jest": "^30.4.2",
+    "supertest": "^7.2.2"
+  },
+  "scripts": {
+  "start": "node index.js",
+  "test": "jest"
   }
 }
+
