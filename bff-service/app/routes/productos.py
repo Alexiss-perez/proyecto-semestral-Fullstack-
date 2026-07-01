@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 import httpx
 from app.config import PRODUCTOS_SERVICE_URL
 
@@ -10,39 +10,41 @@ productos_mock = [
         "nombre": "Omega 3",
         "marca": "Natural Life",
         "categoria": "Suplementos",
-        "precio_original": 19990,
+        "precio_normal": 19990,
         "precio_oferta": 12990,
-        "descuento": 35,
-        "fecha_vencimiento": "2026-08-30",
+        "porcentaje_descuento": 35,
         "link_tienda": "https://ejemplo.com/omega-3"
     },
-    {
-        "id": 2,
-        "nombre": "Vitamina D3",
-        "marca": "Healthy Plus",
-        "categoria": "Vitaminas",
-        "precio_original": 14990,
-        "precio_oferta": 8990,
-        "descuento": 40,
-        "fecha_vencimiento": "2026-07-15",
-        "link_tienda": "https://ejemplo.com/vitamina-d3"
-    }
 ]
 
 @router.get("/productos")
 async def listar_productos():
     try:
         async with httpx.AsyncClient(timeout=3.0) as client:
-            response = await client.get(f"{PRODUCTOS_SERVICE_URL}/productos")
+            response = await client.get(f"{PRODUCTOS_SERVICE_URL}/api/productos")
             response.raise_for_status()
             return response.json()
-    except httpx.HTTPError:
+    except httpx.HTTPError as e:
+        print(f"Error conectando a servicio de productos: {e}. Usando Mock")
         return productos_mock
 
 @router.get("/productos/{producto_id}")
 async def obtener_producto(producto_id: int):
-    for producto in productos_mock:
-        if producto["id"] == producto_id:
-            return producto
-
-    return {"detail": "Producto no encontrado"}
+    try:
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            response = await client.get(f"{PRODUCTOS_SERVICE_URL}/api/productos")
+            response.raise_for_status()
+            productos = response.json() # Guardamos la lista completa primero
+            
+            # Buscamos el producto con el ID solicitado
+            for producto in productos:
+                if producto["id"] == producto_id:
+                    return producto
+                
+            raise HTTPException(status_code=404, detail="Producto no encontrado en Supabase")
+    except httpx.HTTPError as e:
+        print(f"Error de conexión: {e}. Buscando en Mock...")
+        for producto in productos_mock:
+            if producto["id"] == producto_id:
+                return producto
+        raise HTTPException(status_code=404, detail="Producto no encontrado en Mock")

@@ -4,13 +4,15 @@ const URL_BFF_PRODUCTOS = 'http://localhost:8000/api/productos';
 const CATEGORY_FILTERS = {
   vitaminas: ['vitamina', 'vitaminas', 'vitamin', 'minerales', 'multivitamina'],
   suplementos: ['suplemento', 'proteína', 'proteina', 'whey', 'amino', 'bcaa', 'creatina', 'deporte', 'sport', 'salud'],
-  probioticos: ['probiótico', 'probiotico', 'prebiótico', 'prebiotico', 'biota', 'digest', 'flora', 'microbiota', 'kefir']
+  probioticos: ['probiótico', 'probiotico', 'prebiótico', 'prebiotico', 'biota', 'digest', 'flora', 'microbiota', 'kefir'],
+  general: ['general']
 };
 
 const CATEGORY_LABELS = {
   vitaminas: 'Vitaminas',
   suplementos: 'Suplementos',
   probioticos: 'Probióticos',
+  general: 'General',
   all: 'Todos'
 };
 
@@ -19,7 +21,7 @@ const PRODUCTS_PER_PAGE = 9;
 let allProductsGlobal = [];
 let currentFilteredProducts = [];
 let currentPage = 1;
-let currentCategoryKey = 'vitaminas';
+let currentCategoryKey = 'all';
 let currentTotalPages = 1;
 
 function normalizeText(value = '') {
@@ -53,52 +55,73 @@ function matchesFilters(product, filters) {
 }
 
 function buildProductCard(product) {
-  const precioNumero = product.variants?.[0] ? Number(product.variants[0].price) : 0;
-  const precio = precioNumero ? precioNumero.toLocaleString('es-CL') : 'N/D';
+  // 1. Extraer los precios directamente de las propiedades planas
+  const precioOfertaNum = Number(product.precio_oferta || 0);
+  const precioNormalNum = Number(product.precio_normal || precioOfertaNum);
+  const descuento = Number(product.porcentaje_descuento || 0);
+
+  // Formatear precios para Chile
+  const txtPrecioOferta = precioOfertaNum ? `$${precioOfertaNum.toLocaleString('es-CL')}` : 'N/D';
+  const txtPrecioNormal = precioNormalNum ? `$${precioNormalNum.toLocaleString('es-CL')}` : '';
 
   const fallbackImage = 'https://via.placeholder.com/320x180.png?text=Sin+imagen';
-  const imagen = product.images?.find(img => img?.src)?.src || product.featured_image?.src || fallbackImage;
+  const imagen = product.imagen_url || product.images?.find(img => img?.src)?.src || fallbackImage;
 
   const description = product.body_html ? product.body_html.replace(/<[^>]+>/g, '').trim() : '';
   const shortDescription = description.length > 90 ? description.slice(0, 90) + '...' : description || 'Excelente producto.';
 
+  // Mantener el objeto seguro para agregar al comparador
   const safeProduct = encodeURIComponent(JSON.stringify({
     handle: product.handle,
     title: product.title,
-    price: precioNumero,
+    price: precioOfertaNum,
     image: imagen
   }));
 
   return `
-    <article class="bg-white rounded-2xl shadow-md overflow-hidden transform hover:-translate-y-1 hover:shadow-xl transition">
+    <article class="bg-white rounded-2xl shadow-md overflow-hidden transform hover:-translate-y-1 hover:shadow-xl transition flex flex-col justify-between relative">
+      
+      ${descuento > 0 ? `
+        <div class="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-black px-2.5 py-1 rounded-lg shadow-sm">
+          -${descuento}% DCTO
+        </div>
+      ` : ''}
+
       <div class="block h-full product-card cursor-pointer" data-handle="${product.handle}" role="button" tabindex="0">
-        <div class="h-48 bg-gradient-to-br from-pastelLavender to-pastelPink flex items-center justify-center overflow-hidden">
-          <img src="${imagen}" alt="${product.title}" class="object-cover h-full w-full" loading="lazy">
+        <div class="h-48 bg-gradient-to-br from-pastelLavender to-pastelPink flex items-center justify-center overflow-hidden p-4">
+          <img src="${imagen}" alt="${product.title}" class="object-contain h-full w-full" loading="lazy">
         </div>
 
-        <div class="p-4">
-          <h3 class="font-semibold text-gray-900">${product.title}</h3>
-          <p class="text-sm text-gray-500 mt-2">${shortDescription}</p>
-
-          <div class="mt-4">
-            <span class="font-bold text-indigo-600">$${precio}</span>
+        <div class="p-4 flex flex-col justify-between h-48">
+          <div>
+            <h3 class="font-semibold text-gray-900 line-clamp-2">${product.title}</h3>
+            <p class="text-sm text-gray-500 mt-1 line-clamp-2">${shortDescription}</p>
           </div>
 
-          <div class="mt-4 flex items-center gap-2">
-            <input 
-              type="number" 
-              min="1" 
-              value="1" 
-              class="cart-qty w-20 rounded-xl border border-slate-200 px-3 py-2 text-sm"
-            />
+          <div>
+            <div class="mt-3 flex items-baseline gap-2 flex-wrap">
+              <span class="font-extrabold text-indigo-600 text-xl">${txtPrecioOferta}</span>
+              ${descuento > 0 ? `
+                <span class="text-xs line-through text-slate-400 font-medium">${txtPrecioNormal}</span>
+              ` : ''}
+            </div>
 
-            <button 
-              type="button"
-              class="add-cart-btn flex-1 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-              data-product="${safeProduct}"
-            >
-              Comparar precio
-            </button>
+            <div class="mt-3 flex items-center gap-2">
+              <input 
+                type="number" 
+                min="1" 
+                value="1" 
+                class="cart-qty w-16 rounded-xl border border-slate-200 px-2 py-1.5 text-sm text-center"
+              />
+
+              <button 
+                type="button"
+                class="add-cart-btn flex-1 rounded-xl bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700 transition"
+                data-product="${safeProduct}"
+              >
+                Comparar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -108,40 +131,49 @@ function buildProductCard(product) {
 
 async function fetchMixgreenProducts() {
   try {
-    const response = await fetch(URL_MIXGREEN);
-
-    if (!response.ok) {
-      throw new Error('MixGreen no respondió');
-    }
-
-    const data = await response.json();
-
-    if (Array.isArray(data.products)) {
-      console.log('✅ Productos cargados desde MixGreen');
-      return data.products;
-    }
-
-    return [];
-  } catch (error) {
-    console.warn('⚠ MixGreen no disponible. Se utilizará el BFF.', error);
-
+    console.log('⚡ Conectando directo al BFF para traer productos desde Supabase...');
+    // Llamada directa a tu BFF en Python
     const response = await fetch(URL_BFF_PRODUCTOS);
 
     if (!response.ok) {
-      throw new Error('No fue posible conectar con el BFF.');
+      throw new Error('El BFF de microservicios no respondió de forma correcta.');
     }
 
-    const productos = await response.json();
+    const productosBD = await response.json();
 
-    return productos.map(producto => ({
+    if (!Array.isArray(productosBD)) {
+      return [];
+    }
+
+    console.log(`✅ ${productosBD.length} productos recuperados exitosamente desde la BD vía BFF`);
+
+    // Mapeamos las columnas de Supabase al formato que el HTML del front espera usar
+    return productosBD.map(producto => ({
       title: producto.nombre,
-      product_type: producto.categoria,
-      body_html: producto.marca,
+      product_type: producto.categoria || 'General',
+      body_html: producto.marca || 'Mixgreen',
       handle: producto.id.toString(),
-      tags: [producto.categoria],
-      variants: [{ price: producto.precio_oferta }],
-      images: [{ src: 'https://via.placeholder.com/300x300?text=Producto' }]
+      tags: [producto.categoria || 'General'],
+
+      // Se mapean los campos de Supabase a los que el front espera en product.html
+      precio_normal: producto.precio_normal,
+      precio_oferta: producto.precio_oferta,
+      porcentaje_descuento: producto.porcentaje_descuento,
+      tienda_origen: producto.tienda_origen || 'Mixgreen',
+      link_tienda: producto.link_tienda || '#',
+      imagen_url: producto.imagen_url,
+
+      // Ajuste de variantes: se usan las columnas de Supabase precio_oferta y precio_normal
+      variants: [{ price: producto.precio_oferta || producto.precio_normal || 0, compare_at_price: producto.precio_normal || 0 }],
+      // Ajuste de imagen: se usa la columna imagen_url poblada por el scraper
+      images: [{ src: producto.imagen_url || 'https://via.placeholder.com/320x180.png?text=Sin+imagen' }],
+      featured_image: { src: producto.imagen_url }
     }));
+
+  } catch (error) {
+    console.error('❌ Error crítico en el circuito del Frontend con el BFF:', error);
+    updateDiag('Error de conexión con los microservicios del ecosistema.', true);
+    return [];
   }
 }
 
